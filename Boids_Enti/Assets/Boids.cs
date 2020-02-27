@@ -31,23 +31,27 @@ public class Boids : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         foreach (Agent a in agents) {
-            a.velocity = Vector3.zero;
+            a.velocity = a.vel;
             a.neightbours.Clear();
             a.checkNeightbours();
+            calculateCohesion(a);
             calculateSeparation(a);
             calculateAlignment(a);
-            calculateCohesion(a);
             a.updateAgent();
         }
     }
 
     void calculateSeparation(Agent a) {
+        Vector3 separationVector = Vector3.zero;
         foreach (Agent neightbour in a.neightbours) {
             float distance = Vector3.Distance(a.transform.position, neightbour.transform.position);
-            distance /= agentRadius;
+            distance /= a.radius;
             distance = 1 - distance;
-            a.addForce(distance * (a.transform.position - neightbour.transform.position) * separationWeight, Agent.DEBUGforceType.SEPARATION);
+            separationVector += distance * (a.transform.position - neightbour.transform.position).normalized * separationWeight;
+
+
         }
+        a.addForce(separationVector, Agent.DEBUGforceType.SEPARATION);
     }
 
     void calculateCohesion(Agent a) {
