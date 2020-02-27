@@ -43,12 +43,20 @@ public class Agent : MonoBehaviour
     }
     public void addForce(Vector3 f, DEBUGforceType type)
     {
-        if (type == DEBUGforceType.SEPARATION)
-            separationForce = f;
-        else if (type == DEBUGforceType.COHESION)
-            cohesionForce = f;
-        else if(type == DEBUGforceType.ALIGNMENT)
-            alignmentForce = f;
+        switch (type) {
+            case DEBUGforceType.SEPARATION:
+                separationForce = f;
+                break; 
+            case DEBUGforceType.COHESION:
+                cohesionForce = f;
+                break; 
+            case DEBUGforceType.ALIGNMENT: 
+                alignmentForce = f;
+                break;
+            default:
+                Debug.LogError("NO TYPE ASSIGNED");
+                break; 
+        }
 
         velocity += f;
     }
