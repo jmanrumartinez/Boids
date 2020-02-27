@@ -2,72 +2,74 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Boids : MonoBehaviour
-{
+public class Boids : MonoBehaviour {
+    [SerializeField] GameObject agentPrefab;
 
-    [SerializeField]
-    GameObject agentPrefab;
-
-    [SerializeField]
-    int numBoids = 10;
+    [SerializeField] int numBoids = 10;
 
     Agent[] agents;
 
-    [SerializeField]
-    float agentRadius = 2.0f;
+    [SerializeField] float agentRadius = 5.0f;
 
-    [SerializeField]
-    float separationWeight = 1.0f, cohesionWeight = 1.0f, alignmentWeight = 1.0f;
+    [SerializeField] float separationWeight = 1.0f, cohesionWeight = 1.0f, alignmentWeight = 1.0f;
 
-    private void Awake()
-    {
+    private void Awake() {
         List<Agent> agentlist = new List<Agent>();
 
-        for(int i = 0; i<numBoids; i++)
-        {
+        for (int i = 0; i < numBoids; i++) {
             Vector3 position = Vector3.up * Random.Range(0, 10)
                 + Vector3.right * Random.Range(0, 10) + Vector3.forward * Random.Range(0, 10);
-            agentlist.Add(Instantiate(agentPrefab, position, Quaternion.identity).GetComponent<Agent>());
+
+            Agent newAgent = Instantiate(agentPrefab, position, Quaternion.identity).GetComponent<Agent>();
+            newAgent.SetRadius(agentRadius); 
+            agentlist.Add(newAgent);
 
         }
         agents = agentlist.ToArray();
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        foreach (Agent a in agents)
-        {
+    void Update() {
+        foreach (Agent a in agents) {
             a.velocity = Vector3.zero;
-            checkForNeightBours(a);
+            a.neightbours.Clear();
+            a.checkNeightbours();
             calculateSeparation(a);
             calculateAlignment(a);
             calculateCohesion(a);
             a.updateAgent();
-            a.neightbours.Clear();
-         
         }
     }
 
-    void checkForNeightBours(Agent a)
-    {
-        
+    void calculateSeparation(Agent a) {
+        foreach (Agent neightbour in a.neightbours) {
+            float distance = Vector3.Distance(a.transform.position, neightbour.transform.position);
+            distance /= agentRadius;
+            distance = 1 - distance;
+            a.addForce(distance * (a.transform.position - neightbour.transform.position) * separationWeight, Agent.DEBUGforceType.SEPARATION);
+        }
     }
 
-    void calculateSeparation(Agent a)
-    {
-        a.addForce(Vector3.up, Agent.DEBUGforceType.SEPARATION);
-       
+    void calculateCohesion(Agent a) {
+        Vector3 centralPosition = new Vector3();
+
+        foreach (Agent neightbour in a.neightbours) {
+            centralPosition += neightbour.transform.position; 
+        }
+        centralPosition += a.transform.position;
+        centralPosition /= a.neightbours.Count + 1;
+        a.addForce((centralPosition - a.transform.position) * cohesionWeight, Agent.DEBUGforceType.COHESION);
     }
 
-    void calculateCohesion(Agent a)
-    {
-        a.addForce(Vector3.forward, Agent.DEBUGforceType.COHESION);
+    void calculateAlignment(Agent a) {
+        Vector3 dirVec = new Vector3();
 
-    }
+        foreach (Agent neightbour in a.neightbours) {
+            dirVec += neightbour.velocity; 
+        }
 
-    void calculateAlignment(Agent a)
-    {
-        a.addForce(Vector3.right, Agent.DEBUGforceType.ALIGNMENT);
+        dirVec += a.velocity;
+        dirVec /= a.neightbours.Count + 1;
+        a.addForce(dirVec, Agent.DEBUGforceType.ALIGNMENT);
     }
 }

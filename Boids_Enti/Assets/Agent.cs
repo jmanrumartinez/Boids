@@ -12,6 +12,10 @@ public class Agent : MonoBehaviour
 
     public List<Agent> neightbours;
 
+    public void SetRadius(float newRadious) {
+        radius = newRadious;
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
@@ -20,14 +24,10 @@ public class Agent : MonoBehaviour
         Gizmos.DrawLine(transform.position, transform.position + cohesionForce);
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(transform.position, transform.position + alignmentForce);
-
         Gizmos.color = Color.green;
         Gizmos.DrawLine(transform.position, transform.position + velocity);
-
         Gizmos.color = Color.white;
         Gizmos.DrawWireSphere(transform.position, radius);
-
-      
     }
 
     private void Awake()
@@ -47,7 +47,7 @@ public class Agent : MonoBehaviour
             separationForce = f;
         else if (type == DEBUGforceType.COHESION)
             cohesionForce = f;
-        else
+        else if(type == DEBUGforceType.ALIGNMENT)
             alignmentForce = f;
 
         velocity += f;
@@ -67,17 +67,5 @@ public class Agent : MonoBehaviour
         {
             neightbours.Add(c.GetComponent<Agent>());
         }
-       
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

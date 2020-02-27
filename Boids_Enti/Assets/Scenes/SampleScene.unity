@@ -279,7 +279,7 @@ MonoBehaviour:
   agentPrefab: {fileID: 7519938769772776467, guid: 48a0486edecd80743a3963e8a71368a0,
     type: 3}
   numBoids: 10
-  agentRadius: 2
+  agentRadius: 5
   separationWeight: 1
   cohesionWeight: 1
   alignmentWeight: 1
